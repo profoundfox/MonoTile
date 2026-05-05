@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using System.Xml.Linq;
@@ -9,11 +10,12 @@ namespace MonoTile
     {
         public static TiledMap Extract(string path)
         {
-            var doc = XDocument.Load(path); 
+            var doc = XDocument.Load(path);
             var mapEl = doc.Element("map");
 
             var map = new TiledMap
             {
+                FilePath = path,
                 Width = (int)mapEl.Attribute("width"),
                 Height = (int)mapEl.Attribute("height"),
                 TileWidth = (int)mapEl.Attribute("tilewidth"),
@@ -27,7 +29,7 @@ namespace MonoTile
             {
                 var image = ts.Element("image");
 
-                map.Tilesets.Add(new TiledMap.Tileset
+                var tileset = new TiledMap.Tileset
                 {
                     FirstGid = (int)ts.Attribute("firstgid"),
                     Name = (string)ts.Attribute("name"),
@@ -39,7 +41,31 @@ namespace MonoTile
                     ImageSource = (string)image?.Attribute("source"),
                     ImageWidth = (int?)image?.Attribute("width") ?? 0,
                     ImageHeight = (int?)image?.Attribute("height") ?? 0
-                });
+                };
+
+                foreach (var tileEl in ts.Elements("tile"))
+                {
+                    int localId = (int)tileEl.Attribute("id");
+                    int gid = tileset.FirstGid + localId;
+
+                    var props = tileEl.Element("properties");
+                    if (props == null) continue;
+
+                    var dict = new Dictionary<string, object>();
+
+                    foreach (var p in props.Elements("property"))
+                    {
+                        string name = (string)p.Attribute("name");
+                        string type = (string)p.Attribute("type") ?? "string";
+                        string value = (string)p.Attribute("value") ?? p.Value;
+
+                        dict[name] = Parsers.ParseProperty(type, value);
+                    }
+
+                    tileset.TileProperties[gid] = dict;
+                }
+
+                map.Tilesets.Add(tileset);
             }
 
             foreach (var layerEl in mapEl.Elements("layer"))
@@ -70,19 +96,19 @@ namespace MonoTile
 
                 if (encoding != "csv")
                     throw new NotSupportedException("Only CSV supported in this version");
-                
+
                 var numbers = dataEl.Value
                     .Split(new[] { ',', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(s => s.Trim())
                     .Where(s => !string.IsNullOrWhiteSpace(s))
                     .Select(int.Parse)
                     .ToArray();
-                
+
                 layer.Tiles = new int[layer.Width, layer.Height];
 
-                for(int y = 0; y < layer.Height; y++)
+                for (int y = 0; y < layer.Height; y++)
                 {
-                    for(int x = 0; x < layer.Width; x++)
+                    for (int x = 0; x < layer.Width; x++)
                     {
                         layer.Tiles[x, y] = numbers[y * layer.Width + x];
                     }

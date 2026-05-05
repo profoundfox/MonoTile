@@ -278,11 +278,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/nilslauvstad/Git/Libraries/MonoTile/MonoTile.csproj",
+      "projectUniqueName": "/Users/nilslauvstad/Git/MonoTile/MonoTile.csproj",
       "projectName": "MonoTile",
-      "projectPath": "/Users/nilslauvstad/Git/Libraries/MonoTile/MonoTile.csproj",
+      "projectPath": "/Users/nilslauvstad/Git/MonoTile/MonoTile.csproj",
       "packagesPath": "/Users/nilslauvstad/.nuget/packages/",
-      "outputPath": "/Users/nilslauvstad/Git/Libraries/MonoTile/obj/",
+      "outputPath": "/Users/nilslauvstad/Git/MonoTile/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/nilslauvstad/.nuget/NuGet/NuGet.Config"

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace MonoTile
@@ -15,31 +17,66 @@ namespace MonoTile
         public List<Tileset> Tilesets = new();
         public List<Layer> Layers = new();
 
-        public TilemapStruct ToMap()
+        public string FilePath;
+
+        public List<MonoMap> ToMaps()
         {
-            var firstLayer = Layers.FirstOrDefault();
-            if (firstLayer == null)
-                return default;
+            var result = new List<MonoMap>();
 
-            var firstTileset = Tilesets.FirstOrDefault();
+            if (Tilesets == null || Tilesets.Count == 0)
+                return result;
 
-            return new TilemapStruct
+            if (Layers == null || Layers.Count == 0)
+                return result;
+
+            var ts = Tilesets[0];
+
+            var monoSet = new MonoSet(
+                rows: ts.TileCount / ts.Columns,
+                columns: ts.Columns,
+                imagePath: ts.ImageSource,
+                tileWidth: ts.TileWidth,
+                tileHeight: ts.TileHeight,
+                tileProps: ts.TileProperties
+            );
+
+            foreach (var layer in Layers)
             {
-                Width = firstLayer.Width,
-                Height = firstLayer.Height,
-                TileWidth = firstTileset?.TileWidth ?? 16,
-                TileHeight = firstTileset?.TileHeight ?? 16,
-                Tiles = firstLayer.Tiles,
-                Tileset = new TilemapStruct.TilesetStruct
-                {
-                    ImageSource = firstTileset?.ImageSource ?? "",
-                    TileWidth = firstTileset?.TileWidth ?? 16,
-                    TileHeight = firstTileset?.TileHeight ?? 16,
-                    Columns = firstTileset?.Columns ?? 0,
-                    TileCount = firstTileset?.TileCount ?? 0,
-                    FirstGid = firstTileset?.FirstGid ?? 1
-                }
-            };
+                var grid = layer.Tiles.CloneGrid();
+
+                var monoMap = new MonoMap(
+                    grid: grid,
+                    tileSet: monoSet,
+                    rows: layer.Height,
+                    columns: layer.Width,
+                    indexOffset: ts.FirstGid
+                );
+
+                monoMap.FilePath = FilePath;
+
+                monoMap.Properties = layer.Properties;
+
+                result.Add(monoMap);
+            }
+
+            return result;
+        }
+
+        private int[,] CloneGrid(int[,] source)
+        {
+            if (source == null)
+                return null;
+
+            int w = source.GetLength(0);
+            int h = source.GetLength(1);
+
+            var copy = new int[w, h];
+
+            for (int x = 0; x < w; x++)
+                for (int y = 0; y < h; y++)
+                    copy[x, y] = source[x, y];
+
+            return copy;
         }
 
         public class Tileset
@@ -51,6 +88,9 @@ namespace MonoTile
 
             public string ImageSource;
             public int ImageWidth, ImageHeight;
+
+            public Dictionary<int, Dictionary<string, object>> TileProperties
+                = new Dictionary<int, Dictionary<string, object>>();
         }
 
         public class Layer
