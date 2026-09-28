@@ -13,6 +13,8 @@ namespace MonoTile
       set => filePath = value;
     }
 
+    public string Name { get; set; }
+
     public int[,] Grid { get; set; }
 
     public MonoSet TileSet { get; set; }
@@ -24,9 +26,10 @@ namespace MonoTile
 
     public int IndexOffset { get; set; }
 
-    public MonoMap(int[,] grid, MonoSet tileSet, int rows,
+    public MonoMap(string name, int[,] grid, MonoSet tileSet, int rows,
         int columns, int indexOffset)
     {
+      Name = name;
       Grid = grid;
       TileSet = tileSet;
       Rows = rows;

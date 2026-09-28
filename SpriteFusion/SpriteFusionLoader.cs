@@ -9,23 +9,23 @@ using System.Xml.Linq;
 
 namespace MonoTile
 {
-    public class SpriteFusionLoader : ITileLoader<SpriteFusionMap>
+  public class SpriteFusionLoader : ITileLoader<SpriteFusionMap>
+  {
+    public static SpriteFusionMap Extract(string path)
     {
-        public static SpriteFusionMap Extract(string path)
-        {
-            if (!File.Exists(path))
-                throw new FileNotFoundException($"File not found at {path}");
+      if (!File.Exists(path))
+        throw new FileNotFoundException($"File not found at {path}");
 
-            string json = File.ReadAllText(path);
+      string json = File.ReadAllText(path);
 
-            try
-            {
-                return JsonSerializer.Deserialize<SpriteFusionMap>(json);
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"Failed to parse SPMap JSON: {e.Message}", e);
-            }
-        }
+      try
+      {
+        return JsonSerializer.Deserialize<SpriteFusionMap>(json);
+      }
+      catch (Exception e)
+      {
+        throw new Exception($"Failed to parse SPMap JSON: {e.Message}", e);
+      }
     }
+  }
 }

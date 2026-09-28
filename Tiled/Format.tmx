@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<map
+    version="1.10"
+    tiledversion="1.11.0"
+    class="ExampleMap"
+    orientation="orthogonal"
+    renderorder="right-down"
+    compressionlevel="-1"
+    width="8"
+    height="8"
+    tilewidth="32"
+    tileheight="32"
+    infinite="1"
+    nextlayerid="20"
+    nextobjectid="100"
+    parallaxoriginx="0"
+    parallaxoriginy="0"
+    backgroundcolor="#1a1a1a">
+
+  <properties>
+    <property name="stringProp" type="string" value="hello"/>
+    <property name="intProp" type="int" value="42"/>
+    <property name="floatProp" type="float" value="3.14"/>
+    <property name="boolProp" type="bool" value="true"/>
+    <property name="colorProp" type="color" value="#ff00ffff"/>
+    <property name="fileProp" type="file" value="assets/config.json"/>
+    <property name="objectRef" type="object" value="1"/>
+  </properties>
+
+  <tileset firstgid="1" source="terrain.tsx"/>
+
+  <tileset
+      firstgid="100"
+      name="ExampleTiles"
+      class="Environment"
+      tilewidth="32"
+      tileheight="32"
+      spacing="1"
+      margin="1"
+      tilecount="16"
+      columns="4"
+      objectalignment="center"
+      tilerendersize="tile"
+      fillmode="stretch">
+
+    <tileoffset x="2" y="-4"/>
+
+    <grid orientation="orthogonal" width="32" height="32"/>
+
+    <properties>
+      <property name="tilesetProp" value="embedded"/>
+    </properties>
+
+    <image source="tiles.png" width="133" height="133"/>
+
+    <terraintypes>
+      <terrain name="Grass" tile="0"/>
+      <terrain name="Water" tile="1"/>
+    </terraintypes>
+
+    <wangsets>
+      <wangset name="BiomeEdges" type="corner" tile="0">
+        <wangcolor name="Grass" color="#00ff00" tile="0" probability="1"/>
+        <wangcolor name="Water" color="#0000ff" tile="1" probability="1"/>
+
+        <wangtile tileid="0" wangid="1,1,1,1,1,1,1,1"/>
+        <wangtile tileid="1" wangid="2,2,2,2,2,2,2,2"/>
+      </wangset>
+    </wangsets>
+
+    <tile id="0" type="GrassTile" terrain="0,0,0,0" probability="0.8">
+
+      <properties>
+        <property name="walkable" type="bool" value="true"/>
+        <property name="damage" type="int" value="0"/>
+      </properties>
+
+      <image source="grass_single.png" width="32" height="32"/>
+
+      <objectgroup draworder="index" id="1">
+        <object id="1" x="0" y="0" width="32" height="32"/>
+        <object id="2" x="8" y="8">
+          <ellipse/>
+        </object>
+      </objectgroup>
+
+      <animation>
+        <frame tileid="0" duration="120"/>
+        <frame tileid="1" duration="120"/>
+        <frame tileid="2" duration="120"/>
+      </animation>
+    </tile>
+
+    <tile id="1" type="WaterTile">
+      <properties>
+        <property name="swimmable" type="bool" value="true"/>
+      </properties>
+    </tile>
+
+    <tile id="2">
+      <objectgroup id="2">
+        <object
+            id="3"
+            name="Spawn"
+            type="SpawnPoint"
+            x="16"
+            y="16"
+            point="true"/>
+      </objectgroup>
+    </tile>
+  </tileset>
+
+  <!-- ========================================================= -->
+  <!-- TILE LAYER -->
+  <!-- ========================================================= -->
+  <layer
+      id="1"
+      name="Ground"
+      width="8"
+      height="8"
+      opacity="0.9"
+      visible="1"
+      tintcolor="#ffffffff"
+      offsetx="2"
+      offsety="4"
+      parallaxx="1"
+      parallaxy="1">
+
+    <properties>
+      <property name="music" value="overworld.ogg"/>
+    </properties>
+
+    <!-- Infinite map chunk -->
+    <data encoding="csv">
+      <chunk x="0" y="0" width="8" height="8">
+100,101,102,103,100,101,102,103,
+101,102,103,100,101,102,103,100,
+102,103,100,101,102,103,100,101,
+103,100,101,102,103,100,101,102,
+100,101,102,103,100,101,102,103,
+101,102,103,100,101,102,103,100,
+102,103,100,101,102,103,100,101,
+103,100,101,102,103,100,101,102
+      </chunk>
+    </data>
+  </layer>
+
+  <!-- ========================================================= -->
+  <!-- OBJECT LAYER -->
+  <!-- ========================================================= -->
+  <objectgroup
+      id="2"
+      name="Objects"
+      color="#ff00ff"
+      opacity="1"
+      visible="1"
+      tintcolor="#ffffffff"
+      offsetx="0"
+      offsety="0"
+      parallaxx="1"
+      parallaxy="1"
+      draworder="topdown">
+
+    <properties>
+      <property name="difficulty" value="medium"/>
+    </properties>
+
+    <!-- Rectangle -->
+    <object
+        id="10"
+        name="Box"
+        type="Solid"
+        class="Physics"
+        x="32"
+        y="32"
+        width="64"
+        height="32"
+        rotation="15"
+        gid="100"
+        visible="1">
+
+      <properties>
+        <property name="mass" type="float" value="10.5"/>
+      </properties>
+    </object>
+
+    <!-- Ellipse -->
+    <object id="11" x="120" y="32" width="32" height="32">
+      <ellipse/>
+    </object>
+
+    <!-- Point -->
+    <object id="12" x="180" y="50">
+      <point/>
+    </object>
+
+    <!-- Polygon -->
+    <object id="13" x="200" y="100">
+      <polygon points="0,0 32,0 16,32"/>
+    </object>
+
+    <!-- Polyline -->
+    <object id="14" x="300" y="100">
+      <polyline points="0,0 32,16 64,0"/>
+    </object>
+
+    <!-- Text -->
+    <object id="15" x="50" y="200" width="200" height="50">
+      <text
+          fontfamily="Arial"
+          pixelsize="18"
+          wrap="1"
+          color="#ffffffff"
+          bold="1"
+          italic="1"
+          underline="1"
+          strikeout="1"
+          kerning="1"
+          halign="center"
+          valign="center">
+        Hello TMX
+      </text>
+    </object>
+
+    <!-- Template instance -->
+    <object id="16" template="enemy.tx"/>
+  </objectgroup>
+
+  <!-- ========================================================= -->
+  <!-- IMAGE LAYER -->
+  <!-- ========================================================= -->
+  <imagelayer
+      id="3"
+      name="Background"
+      offsetx="0"
+      offsety="0"
+      parallaxx="0.5"
+      parallaxy="0.5"
+      opacity="0.75"
+      visible="1"
+      tintcolor="#ffffffff">
+
+    <properties>
+      <property name="scrollSpeed" type="float" value="0.5"/>
+    </properties>
+
+    <image source="background.png" width="1024" height="512"/>
+  </imagelayer>
+
+  <!-- ========================================================= -->
+  <!-- GROUP LAYER -->
+  <!-- ========================================================= -->
+  <group
+      id="4"
+      name="GroupedContent"
+      offsetx="16"
+      offsety="16"
+      opacity="1"
+      visible="1"
+      tintcolor="#ffffffff"
+      parallaxx="1"
+      parallaxy="1">
+
+    <properties>
+      <property name="groupProp" value="nested"/>
+    </properties>
+
+    <!-- Nested layer -->
+    <layer id="5" name="NestedTiles" width="2" height="2">
+      <data encoding="csv">
+100,101,
+102,103
+      </data>
+    </layer>
+
+    <!-- Nested object layer -->
+    <objectgroup id="6" name="NestedObjects">
+      <object id="20" x="10" y="10" width="16" height="16"/>
+    </objectgroup>
+  </group>
+
+</map>

@@ -1,0 +1,124 @@
+using System;
+using System.Collections.Generic;
+using System.IO.Compression;
+using System.Linq;
+using System.Xml.Linq;
+
+namespace MonoTile
+{
+  public class SPTiledLoader : ITileLoader<SPTiledMap>
+  {
+    public static SPTiledMap Extract(string path)
+    {
+      var doc = XDocument.Load(path);
+      var mapEl = doc.Element("map");
+
+      var map = new SPTiledMap
+      {
+        FilePath = path,
+        Width = (int)mapEl.Attribute("width"),
+        Height = (int)mapEl.Attribute("height"),
+        TileWidth = (int)mapEl.Attribute("tilewidth"),
+        TileHeight = (int)mapEl.Attribute("tileheight"),
+        Orientation = (string)mapEl.Attribute("orientation"),
+        RenderOrder = (string)mapEl.Attribute("renderorder"),
+        Infinite = ((int?)mapEl.Attribute("infinite") ?? 0) == 1
+      };
+
+      foreach (var ts in mapEl.Elements("tileset"))
+      {
+        var image = ts.Element("image");
+
+        var tileset = new SPTiledMap.Tileset
+        {
+          FirstGid = (int)ts.Attribute("firstgid"),
+          Name = (string)ts.Attribute("name"),
+          TileWidth = (int)ts.Attribute("tilewidth"),
+          TileHeight = (int)ts.Attribute("tileheight"),
+          TileCount = (int)ts.Attribute("tilecount"),
+          Columns = (int)ts.Attribute("columns"),
+
+          ImageSource = (string)image?.Attribute("source"),
+          ImageWidth = (int?)image?.Attribute("width") ?? 0,
+          ImageHeight = (int?)image?.Attribute("height") ?? 0
+        };
+
+        foreach (var tileEl in ts.Elements("tile"))
+        {
+          int localId = (int)tileEl.Attribute("id");
+          int gid = tileset.FirstGid + localId;
+
+          var props = tileEl.Element("properties");
+          if (props == null) continue;
+
+          var dict = new Dictionary<string, object>();
+
+          foreach (var p in props.Elements("property"))
+          {
+            string name = (string)p.Attribute("name");
+            string type = (string)p.Attribute("type") ?? "string";
+            string value = (string)p.Attribute("value") ?? p.Value;
+
+            dict[name] = Parsers.ParseProperty(type, value);
+          }
+
+          tileset.TileProperties[gid] = dict;
+        }
+
+        map.Tilesets.Add(tileset);
+      }
+
+      foreach (var layerEl in mapEl.Elements("layer"))
+      {
+        var layer = new SPTiledMap.Layer
+        {
+          Id = (int)layerEl.Attribute("id"),
+          Name = (string)layerEl.Attribute("name"),
+          Width = (int)layerEl.Attribute("width"),
+          Height = (int)layerEl.Attribute("height")
+        };
+
+        var props = layerEl.Element("properties");
+        if (props != null)
+        {
+          foreach (var p in props.Elements("property"))
+          {
+            string name = (string)p.Attribute("name");
+            string type = (string)p.Attribute("type") ?? "string";
+            string value = (string)p.Attribute("value") ?? p.Value;
+
+            layer.Properties[name] = Parsers.ParseProperty(type, value);
+          }
+        }
+
+        var dataEl = layerEl.Element("data");
+        string encoding = (string)dataEl.Attribute("encoding");
+
+        if (encoding != "csv")
+          throw new NotSupportedException("Only CSV supported in this version");
+
+        var numbers = dataEl.Value
+            .Split(new[] { ',', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => s.Trim())
+            .Where(s => !string.IsNullOrWhiteSpace(s))
+            .Select(int.Parse)
+            .ToArray();
+
+        layer.Tiles = new int[layer.Width, layer.Height];
+
+        for (int y = 0; y < layer.Height; y++)
+        {
+          for (int x = 0; x < layer.Width; x++)
+          {
+            layer.Tiles[x, y] = numbers[y * layer.Width + x];
+          }
+        }
+
+        map.Layers.Add(layer);
+
+      }
+
+      return map;
+    }
+  }
+}

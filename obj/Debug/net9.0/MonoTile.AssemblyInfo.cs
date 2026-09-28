@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MonoTile")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+801748f98e8a8f61eb23036fad4bc0a3d32b67f4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5af37bba6489e0bf5f26493bf37f70d229383cff")]
 [assembly: System.Reflection.AssemblyProductAttribute("MonoTile")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MonoTile")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
